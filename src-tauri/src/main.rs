@@ -18,6 +18,7 @@ use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 use tauri_plugin_notification::NotificationExt;
 use tauri_plugin_opener::OpenerExt;
+use tauri_plugin_updater::{Update, UpdaterExt};
 
 // ---------------------------------------------------------------------------
 // Données (on ne lit que ce dont on a besoin pour les notifications ;
@@ -257,6 +258,69 @@ fn start_scheduler(app: AppHandle) {
 }
 
 // ---------------------------------------------------------------------------
+// Mises à jour automatiques
+// Coche regarde sur GitHub (fichier latest.json de la dernière version publiée)
+// 15 secondes après le démarrage, puis toutes les 6 heures. Si une version plus
+// récente existe, l'interface affiche un bandeau ; un clic l'installe.
+// Les mises à jour sont signées : seule la personne qui a la clé secrète peut en publier.
+// ---------------------------------------------------------------------------
+
+#[derive(Default)]
+struct PendingUpdate(Mutex<Option<Update>>);
+
+fn check_for_update(app: &AppHandle) {
+    let Ok(updater) = app.updater() else { return };
+    if let Ok(Some(update)) = tauri::async_runtime::block_on(updater.check()) {
+        let version = update.version.clone();
+        let already_known = app
+            .state::<PendingUpdate>()
+            .0
+            .lock()
+            .unwrap()
+            .as_ref()
+            .map(|u| u.version == version)
+            .unwrap_or(false);
+        *app.state::<PendingUpdate>().0.lock().unwrap() = Some(update);
+        let _ = app.emit("update-available", version.clone());
+
+        // Si la fenêtre est fermée, on prévient une seule fois par une notification
+        let visible = app
+            .get_webview_window("main")
+            .map(|w| w.is_visible().unwrap_or(false))
+            .unwrap_or(false);
+        if !visible && !already_known {
+            notify(app, &format!("Coche {version} est disponible. Ouvre Coche pour l'installer."));
+        }
+    }
+}
+
+fn start_update_checker(app: AppHandle) {
+    thread::spawn(move || {
+        thread::sleep(Duration::from_secs(15));
+        loop {
+            check_for_update(&app);
+            thread::sleep(Duration::from_secs(6 * 3600));
+        }
+    });
+}
+
+#[tauri::command]
+fn get_pending_update(pending: State<PendingUpdate>) -> Option<String> {
+    pending.0.lock().unwrap().as_ref().map(|u| u.version.clone())
+}
+
+#[tauri::command]
+async fn install_update(app: AppHandle, pending: State<'_, PendingUpdate>) -> Result<(), String> {
+    let update = pending.0.lock().unwrap().take().ok_or("Aucune mise à jour en attente")?;
+    // Sous Windows, l'installateur se lance et ferme Coche, puis le relance une fois fini
+    update
+        .download_and_install(|_, _| {}, || {})
+        .await
+        .map_err(|e| e.to_string())?;
+    app.restart();
+}
+
+// ---------------------------------------------------------------------------
 // Fenêtre
 // ---------------------------------------------------------------------------
 
@@ -381,6 +445,8 @@ fn main() {
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, None))
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .manage(PendingUpdate::default())
         .setup(|app| {
             // Données
             let dir = app.path().app_data_dir()?;
@@ -445,6 +511,10 @@ fn main() {
                 .build(app)?;
 
             start_scheduler(app.handle().clone());
+            // Pas de recherche de mise à jour en mode développement
+            if !cfg!(debug_assertions) {
+                start_update_checker(app.handle().clone());
+            }
             Ok(())
         })
         // Fermer la fenêtre la range dans la barre des tâches au lieu de quitter
@@ -463,7 +533,9 @@ fn main() {
             open_messages,
             hide_window,
             quit_app,
-            uninstall_app
+            uninstall_app,
+            get_pending_update,
+            install_update
         ])
         .run(tauri::generate_context!())
         .expect("Impossible de lancer Coche");

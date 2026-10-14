@@ -14,6 +14,10 @@ Pas de compte, pas de cloud : tes listes restent sur ton PC.
 
 C'est tout : Coche s'ouvre, et se relancera tout seul à chaque démarrage du PC (désactivable dans les réglages).
 
+### Mises à jour
+
+Coche vérifie tout seul s'il existe une nouvelle version, au démarrage puis toutes les 6 heures. Quand c'est le cas, un bandeau **Mettre à jour** apparaît en haut de la fenêtre : un clic, et Coche se met à jour puis se relance, sans perdre vos tâches.
+
 ### Désinstaller
 
 Le plus simple : **Réglages de Coche → Désinstaller Coche**, ou **menu Démarrer → Désinstaller Coche**.
@@ -74,7 +78,11 @@ Astuce : on peut aussi ouvrir `src/index.html` directement dans un navigateur po
 
 ### Publier une nouvelle version
 
-Pas besoin de compiler soi-même : GitHub le fait. Change le numéro de version dans `src-tauri/tauri.conf.json`, puis :
+Pas besoin de compiler soi-même : GitHub le fait, et signe la mise à jour pour que les Coche déjà installés la reçoivent.
+
+Une seule fois : ajoute la clé secrète de signature (créée avec `npx tauri signer generate`) dans **Settings → Secrets and variables → Actions**, sous le nom `TAURI_SIGNING_PRIVATE_KEY`. La clé publique correspondante est déjà dans `src-tauri/tauri.conf.json`. Si tu forkes le projet, génère ta propre paire de clés et remplace la clé publique et l'adresse du dépôt dans ce fichier.
+
+Ensuite, à chaque version : change le numéro dans `src-tauri/tauri.conf.json`, puis :
 
 ```bash
 git tag v0.1.0

@@ -467,3 +467,19 @@ select {
   color: var(--muted); font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px;
 }
 .link-btn:hover { color: var(--rust); }
+
+/* ---------- Nouvelle version ---------- */
+.update-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin: 0 14px 10px; padding: 8px 8px 8px 12px;
+  background: var(--surface); border: 1px solid var(--green); border-radius: 10px;
+  font-size: 13.5px; font-weight: 560;
+  flex-shrink: 0;
+}
+.update-bar[hidden] { display: none; }
+.update-btn {
+  border: 0; border-radius: 7px; padding: 6px 10px;
+  background: var(--green); color: var(--green-ink); font-weight: 640; font-size: 13px;
+  white-space: nowrap;
+}
+.update-btn:disabled { opacity: 0.7; cursor: default; }

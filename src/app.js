@@ -803,6 +803,31 @@ function bindEvents() {
     }
   });
 
+  // Mises à jour : le côté Rust prévient quand une nouvelle version est publiée
+  if (TAURI) {
+    const showUpdate = (version) => {
+      if (!version) return;
+      $('update-text').textContent = `Coche ${version} est disponible.`;
+      $('update-bar').hidden = false;
+    };
+    TAURI.event.listen('update-available', (e) => showUpdate(e.payload));
+    invoke('get_pending_update').then(showUpdate).catch(() => {});
+    $('btn-update').addEventListener('click', async () => {
+      const btn = $('btn-update');
+      btn.disabled = true;
+      btn.textContent = 'Téléchargement…';
+      await save(true);
+      try {
+        await invoke('install_update');
+      } catch (err) {
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = 'Réessayer';
+        toast("La mise à jour n'a pas pu être installée. Vérifie la connexion internet.");
+      }
+    });
+  }
+
   // Raccourci global Ctrl+Alt+H (envoyé par le côté Rust)
   if (TAURI) {
     TAURI.event.listen('quick-add', () => {
