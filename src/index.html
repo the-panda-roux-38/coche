@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coche</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Barre de titre (on peut déplacer la fenêtre en la tirant) -->
+    <header class="titlebar" data-tauri-drag-region>
+      <span class="wordmark" data-tauri-drag-region>Coche</span>
+      <div class="titlebar-actions">
+        <button class="icon-btn" id="btn-settings" title="Réglages" aria-label="Réglages">
+          <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10" /><circle cx="16" cy="7" r="2" /><circle cx="8" cy="17" r="2" /></svg>
+        </button>
+        <button class="icon-btn" id="btn-hide" title="Ranger près de l'horloge" aria-label="Ranger la fenêtre">
+          <svg viewBox="0 0 24 24"><path d="M6 12h12" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- La scène : le panda sur sa branche -->
+    <section class="scene" id="scene" aria-live="polite">
+      <svg class="bamboo-back" viewBox="0 0 160 160" preserveAspectRatio="xMaxYMax meet" aria-hidden="true">
+        <g class="stalks">
+          <rect x="70" y="0" width="9" height="160" rx="3" />
+          <rect x="104" y="0" width="11" height="160" rx="3" />
+          <rect x="140" y="0" width="8" height="160" rx="3" />
+          <path d="M70 38h9M70 92h9M104 22h11M104 70h11M104 124h11M140 50h8M140 106h8" class="nodes" />
+          <path d="M79 38c10-6 20-6 28-2-9 5-19 6-28 2zM104 70c-11-7-22-6-30-1 9 5 21 6 30 1zM148 50c8-7 10-8 12-8l-1 9c-4 1-8 0-11-1z" class="leaf-back" />
+        </g>
+      </svg>
+
+      <svg class="tail" id="tail" viewBox="0 0 36 76" aria-hidden="true">
+        <path class="tail-fur" d="M10 4 C 6 26, 26 40, 20 70" />
+        <path class="tail-rings" d="M10 4 C 6 26, 26 40, 20 70" />
+      </svg>
+
+      <svg class="branch" viewBox="0 0 400 14" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-4 8 C 80 4, 160 11, 240 7 S 360 5, 404 8" />
+      </svg>
+      <div class="leaves" id="leaves" aria-hidden="true"></div>
+
+      <svg class="panda" id="panda" viewBox="0 0 110 124" role="img" aria-label="Le panda roux de Coche">
+        <g class="body">
+          <path class="fur" d="M27 92c0-20 12-32 28-32s28 12 28 32c0 16-12 26-28 26s-28-10-28-26z" />
+          <path class="belly" d="M44 104c0-8 5-14 11-14s11 6 11 14c0 7-5 11-11 11s-11-4-11-11z" />
+          <ellipse class="dark" cx="41" cy="117" rx="10" ry="6" />
+          <ellipse class="dark" cx="69" cy="117" rx="10" ry="6" />
+        </g>
+        <g class="head">
+          <g class="ear ear-l">
+            <path class="fur" d="M17 32C11 14 20 4 36 12z" />
+            <path class="ear-in" d="M20 27c-3-10 2-16 11-12z" />
+          </g>
+          <g class="ear ear-r">
+            <path class="fur" d="M93 32c6-18-3-28-19-20z" />
+            <path class="ear-in" d="M90 27c3-10-2-16-11-12z" />
+          </g>
+          <ellipse class="fur" cx="55" cy="42" rx="37" ry="30" />
+          <ellipse class="mask" cx="39" cy="27" rx="7" ry="4.5" />
+          <ellipse class="mask" cx="71" cy="27" rx="7" ry="4.5" />
+          <path class="mask" d="M18 46c4-8 14-8 18-1 2 6-3 13-10 13-6 0-10-6-8-12zM92 46c-4-8-14-8-18-1-2 6 3 13 10 13 6 0 10-6 8-12z" />
+          <ellipse class="mask" cx="55" cy="55" rx="16" ry="12" />
+          <path class="tear" d="M41 44c-1 6-4 10-8 14M69 44c1 6 4 10 8 14" />
+          <g class="eyes eyes-open">
+            <circle cx="42" cy="38" r="4.4" /><circle cx="68" cy="38" r="4.4" />
+            <circle class="shine" cx="43.6" cy="36.4" r="1.4" /><circle class="shine" cx="69.6" cy="36.4" r="1.4" />
+          </g>
+          <g class="eyes eyes-happy"><path d="M37 40c2-6 8-6 10 0M63 40c2-6 8-6 10 0" /></g>
+          <g class="eyes eyes-closed"><path d="M37 38c2 4 8 4 10 0M63 38c2 4 8 4 10 0" /></g>
+          <ellipse class="nose" cx="55" cy="49.5" rx="4.6" ry="3.2" />
+          <path class="mouth" d="M55 52.5v3M50.5 55.5c2 2.5 7 2.5 9 0" />
+        </g>
+        <g class="arm arm-l"><path class="dark" d="M34 78c-6 4-9 14-8 26 1 5 9 5 10 0 1-9 2-15 5-20z" /></g>
+        <g class="arm arm-r"><path class="dark" d="M76 78c6 4 9 14 8 26-1 5-9 5-10 0-1-9-2-15-5-20z" /></g>
+      </svg>
+
+      <div class="zzz" aria-hidden="true"><span>z</span><span>z</span><span>z</span></div>
+      <p class="bubble" id="bubble"></p>
+    </section>
+
+    <!-- Listes -->
+    <div class="list-head">
+      <p class="date" id="date"></p>
+      <nav class="lists" id="lists" aria-label="Listes"></nav>
+    </div>
+
+    <!-- Ajout -->
+    <form class="add" id="add-form" autocomplete="off">
+      <input id="add-input" type="text" maxlength="200" placeholder="Ajouter une tâche" aria-label="Nouvelle tâche" />
+      <button class="add-btn" type="submit" aria-label="Ajouter">
+        <svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12" /></svg>
+      </button>
+    </form>
+
+    <!-- Tâches -->
+    <main class="content" id="content">
+      <ul class="tasks" id="tasks"></ul>
+      <p class="empty" id="empty" hidden></p>
+      <details class="done-section" id="done-section" hidden>
+        <summary id="done-label">Fait aujourd'hui</summary>
+        <ul class="tasks done-list" id="done-list"></ul>
+      </details>
+    </main>
+
+    <footer class="footer">
+      <span id="week"></span>
+      <span>Ctrl + Alt + H pour ajouter</span>
+    </footer>
+  </div>
+
+  <!-- Réglages -->
+  <aside class="settings" id="settings" aria-hidden="true" aria-labelledby="settings-title">
+    <div class="settings-head">
+      <h2 id="settings-title">Réglages</h2>
+      <button class="icon-btn" id="btn-close-settings" aria-label="Fermer les réglages">
+        <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" /></svg>
+      </button>
+    </div>
+
+    <div class="setting">
+      <div class="setting-row">
+        <label for="s-notif">Rappels par jour</label>
+        <output id="s-notif-out">3</output>
+      </div>
+      <input type="range" id="s-notif" min="0" max="8" step="1" />
+      <p class="hint">Le panda t'envoie ces rappels à des heures tirées au hasard. 0 pour les couper.</p>
+    </div>
+
+    <div class="setting">
+      <label for="s-start">Plage horaire des rappels</label>
+      <div class="hours">
+        <span>de</span>
+        <select id="s-start" aria-label="Début"></select>
+        <span>à</span>
+        <select id="s-end" aria-label="Fin"></select>
+      </div>
+    </div>
+
+    <div class="setting toggle-row">
+      <label for="s-sounds">Sons</label>
+      <input type="checkbox" id="s-sounds" class="switch" />
+    </div>
+
+    <div class="setting toggle-row">
+      <label for="s-autostart">Lancer Coche au démarrage du PC</label>
+      <input type="checkbox" id="s-autostart" class="switch" />
+    </div>
+
+    <div class="setting buttons">
+      <button class="btn" id="btn-test">Envoyer un rappel de test</button>
+      <button class="btn ghost" id="btn-messages">Modifier les messages des rappels</button>
+    </div>
+
+    <div class="setting-foot">
+      <button class="btn ghost danger" id="btn-quit">Quitter Coche</button>
+      <p class="hint">Fermer la fenêtre range Coche près de l'horloge, il continue d'envoyer les rappels.</p>
+      <button class="link-btn" id="btn-uninstall">Désinstaller Coche</button>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <canvas id="leaf-fall" aria-hidden="true"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>

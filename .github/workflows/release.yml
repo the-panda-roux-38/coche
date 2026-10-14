@@ -1,0 +1,46 @@
+# Crée automatiquement l'installateur Windows de Coche.
+# Pour publier une version : crée un tag (ex. v0.1.0) et pousse-le sur GitHub :
+#   git tag v0.1.0
+#   git push origin v0.1.0
+# L'installateur apparaît ensuite dans l'onglet « Releases » du dépôt.
+name: Publier une version
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm install
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Coche ${{ github.ref_name }}'
+          releaseBody: |
+            ## Installer Coche
+            1. Télécharge le fichier **Coche_…_x64-setup.exe** ci-dessous.
+            2. Double-clique dessus.
+            3. Si Windows affiche « Windows a protégé votre ordinateur », clique sur **Informations complémentaires** puis **Exécuter quand même**.
+            4. À la fin, laisse cochées les cases **Créer un raccourci sur le bureau** et **Lancer Coche**.
+          releaseDraft: false
+          prerelease: false

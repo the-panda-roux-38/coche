@@ -1,0 +1,19 @@
+{
+  "name": "coche",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Une petite to-do list motivante qui vit dans ta barre des tâches",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "icons": "tauri icon app-icon.svg -o src-tauri/icons",
+    "tauri": "tauri",
+    "postinstall": "node -e \"require('fs').mkdirSync('src/fonts',{recursive:true});require('fs').copyFileSync(require.resolve('@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2'),'src/fonts/bricolage.woff2')\""
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0"
+  }
+}
